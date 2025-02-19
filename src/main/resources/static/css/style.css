@@ -1,0 +1,637 @@
+body {
+  background-color: gainsboro;
+  font-family: 'Frutiger', sans-serif;
+  padding-top: 200px;
+  padding-bottom: 55px;
+}
+
+@font-face {
+  font-family: 'Frutiger';
+  src: url('/fonts/Frutiger.ttf') format('truetype');
+}
+
+body.dashboard .dashboard-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 65vh;
+}
+
+body.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+h1 {
+  font-size: 30px;
+  margin-bottom: 30px;
+}
+
+.pageTitle {
+  padding-left: 85px;
+}
+
+#facilities {
+  font-size: 35px;
+  border: 2px solid black;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 10px 10px;
+}
+
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  border-bottom: 2px #005eb8;
+  background-color: white;
+}
+
+.headerLogos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  margin: 0;
+}
+
+.leftLogo {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+}
+
+.headerLogo {
+  max-width: 80px;
+  height: auto;
+  margin-right: 15px;
+}
+
+.rightLogo {
+  max-width: 120px;
+  margin-right: 20px;
+}
+
+.headerTitle h1 {
+  color: #005eb8;
+  margin-bottom: 5px;
+}
+
+.navBar {
+  background-color: #005eb8;
+  padding: 4px 4px;
+  margin: 0;
+}
+
+.navBar ul {
+  list-style: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.navBar li {
+  margin-right: 20px;
+  align-items: center;
+}
+
+.navButton {
+  text-decoration: none;
+  color: white;
+  font-size: 25px;
+  padding: 13px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  background-color: transparent;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0px;
+}
+
+.navButton:hover {
+  background-color: white;
+  color: black;
+}
+
+#homeLogo {
+  max-width: 35px;
+  height: auto;
+  vertical-align: middle;
+  transition: opacity 0.3s ease;
+}
+
+#goToHome:hover #homeLogo {
+  content: url('/images/logos/HomeLogo.png');
+}
+
+
+#footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #005eb8;
+  color: white;
+  height: 65px;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footerContent p {
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+}
+
+/* Group form elements with consistent spacing */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* Label styling for better readability */
+label {
+  display: block; /* Place label above the input */
+  margin-bottom: 5px; /* Space between label and input */
+  font-size: 23px;
+  font-weight: bold;
+}
+
+/* General input and textarea styling */
+input,
+textarea {
+  width: 100%;
+  max-width: 500px;
+  padding: 5px;
+  box-sizing: border-box; /* Include padding in width calculation */
+  font-size: 20px;
+}
+
+/* Enable vertical resizing for textareas */
+textarea {
+  resize: vertical;
+}
+
+/* Styling for individual error messages */
+.error {
+  display: block; /* Always reserve space */
+  font-size: 25px;
+  color: red;
+  visibility: hidden;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 5px;
+  border-radius: 4px;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+/* Show the error message when validation fails */
+.error.show {
+  visibility: visible;
+}
+
+/* Styling for submit button */
+button {
+  padding: 10px 20px;
+  background-color: #004b9f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* Button hover effect */
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Button focus effect */
+button:focus {
+  outline: 2px solid #0056b3;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three buttons per row on desktop */
+  gap: 60px; /* Spacing between buttons */
+  text-align: center;
+  justify-content: center; /* Center-aligns the grid items */
+}
+
+.dashboardButton {
+  text-decoration: none;
+  color: #6495ed;
+  background-color: #fff;
+  width: 200px; /* Set a fixed width */
+  height: 200px; /* Set a fixed height */
+  padding: 20px; /* Adjust padding */
+  border-radius: 12px; /* Slightly rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Shadow for better visibility */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px; /* Slightly larger text */
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.dashboardButton:hover {
+  background-color: #e9eff4;
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.dashboardButton img {
+  width: 100px; /* Adjusted image size to fit inside the button */
+  height: 90px;
+  margin-bottom: 25px; /* Space below the image */
+}
+
+.formStyle {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  text-align: center;
+  background-color: white;
+  font-size: 30px;
+  padding: 10px 50px 30px;
+  border: 4px;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+.approvalTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+  .approvalTable th, .approvalTable td {
+    padding: 12px;
+    text-align: center;
+  }
+
+  .approvalTable th {
+    background-color: #005eb8;
+    color: white;
+    font-weight: bold;
+  }
+
+  .approvalTable td:hover {
+    background-color: lightgrey;
+  }
+}
+
+.formStyle label {
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Styling for viewMessages page */
+body.viewMessages {
+  margin-top: 200px;
+  padding: 20px;
+}
+
+body.viewMessages h1 {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 35px;
+  color: #333;
+}
+
+body.viewMessages .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px; /* Add spacing between table and message details */
+}
+
+body.viewMessages .messages-table {
+  width: 60%;
+  border-collapse: collapse;
+  overflow-x: auto; /* Add horizontal scroll for small screens */
+}
+
+body.viewMessages table {
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+body.viewMessages th,
+body.viewMessages td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ccc;
+  word-wrap: break-word; /* Ensure long text wraps within the cell */
+}
+
+body.viewMessages th {
+  background-color: #f4f4f4;
+}
+
+body.viewMessages button {
+  padding: 10px 15px; /* Increased padding for touch targets */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+body.viewMessages button:hover {
+  background-color: #0056b3;
+}
+
+body.viewMessages .message-details {
+  width: 35%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  display: none;
+  flex-shrink: 0;
+}
+
+body.viewMessages .message-details h2 {
+  margin-top: 0;
+}
+
+.login-container {
+  background-color: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  padding: 20px;
+  text-align: center;
+}
+
+.no-account {
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+
+.create-one {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.create-one:hover {
+  text-decoration: underline;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-input {
+  padding: 10px;
+  font-size: 20px;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.error-message {
+  color: #d9534f; /* Red color for error text */
+  background-color: #f8d7da; /* Light red background */
+  border: 1px solid #f5c2c7; /* Border to define the error message */
+  border-radius: 4px; /* Match the input field's border radius */
+  padding: 10px; /* Padding for spacing inside the box */
+  font-size: 20px; /* Match the font size of the inputs */
+  margin-bottom: 10px; /* Spacing between error message and input fields */
+  text-align: center; /* Align the text to the center */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.login-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #45a049;
+}
+
+/* Map Styling */
+#map {
+  height: 400px;
+  width: 80%;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-control-zoom {
+  transform: scale(1.5); /* Scale controls to make them larger */
+}
+
+.leaflet-control-zoom a {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 22px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  body.viewMessages .container {
+    flex-direction: column; /* Stack table and details vertically */
+    align-items: stretch;
+  }
+
+  body.viewMessages .messages-table,
+  body.viewMessages .message-details {
+    width: 100%; /* Take up full width */
+  }
+}
+
+@media (max-width: 768px) {
+  body.viewMessages th,
+  body.viewMessages td {
+    font-size: 14px; /* Reduce font size */
+  }
+
+  body.viewMessages button {
+    padding: 8px 12px; /* Adjust button size for smaller screens */
+  }
+
+  body.viewMessages .message-details {
+    padding: 15px; /* Reduce padding for smaller screens */
+  }
+}
+
+#generateReportButton {
+  margin-top: 50px;
+  text-align: center;
+  width: 200px;
+}
+
+@media (max-width: 480px) {
+  body.viewMessages table {
+    display: block; /* Force table to stack */
+  }
+
+  body.viewMessages thead {
+    display: none; /* Hide table headers */
+  }
+
+  body.viewMessages tr {
+    display: block; /* Make rows display as blocks */
+    margin-bottom: 10px;
+  }
+
+  body.viewMessages td {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    border: none;
+    padding: 8px 5px;
+  }
+
+  body.viewMessages td::before {
+    content: attr(data-label); /* Add labels for each cell */
+    font-weight: bold;
+    width: 50%;
+  }
+
+  body.viewMessages .message-details {
+    padding: 10px;
+  }
+
+  body.viewMessages h1 {
+    font-size: 22px; /* Adjust title size */
+  }
+}
+
+.filterContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.searchResult {
+  border: 1px solid blue;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.filter-section, .results-section {
+  background-color: white;
+  padding: 20px;
+  border: 1px solid blue;
+  margin: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.filter-section {
+  max-width: 600px;
+
+}
+
+.filter-section h2 {
+  margin-top: 0;
+}
+
+.filter-section input, .filter-section select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid lightgrey;
+  border-radius: 4px;
+}
+
+.filter-section button {
+  display: block;
+  margin: 0 auto;
+}
+
+.filterNavbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.pageButton:disabled {
+  background-color: white;
+  cursor: not-allowed;
+}
+
+.pageNum {
+  display: inline-block;
+  padding: 10px;
+  font-size: 16px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.checkboxContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filterCheckboxLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filterCheckbox {
+  position: absolute;
+  left: 35%;
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  align-self: center;
+}
+
+.results-section {
+  flex: 2;
+}
+
+/* Responsive styling for smaller screens */
+@media (max-width: 600px) {
+  input,
+  textarea {
+    width: 100%;
+  }
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aftercare Facility</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 400px;
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<h1 class="pageTitle" th:text="${aftercare.homeName}"></h1>
+<br>
+<section class="formStyle">
+    <!-- "Loading address" is needed so the user knows that it's loading if it does not appear on the page right away -->
+    <h2 id="address">Address: <b id="addressField">Loading address...</b></h2>
+    <h2 id="email">Email: <b th:text="${aftercare.email}"></b></h2>
+    <h2 id="phoneNo">Phone number: <b th:text="${aftercare.phoneNo}"></b></h2>
+    <h2 id="totalBedNo">This facility has <b th:text="${aftercare.getTotalAvailableBeds()}"></b> beds available to be filled.</h2>
+
+    <section id="availableBeds">
+        There are currently
+        <b th:text="${aftercare.getTotalAvailableBeds()}"></b>
+        beds available out of
+        <b th:text="${aftercare.totalNumOfBeds}"></b>
+        across all wards.
+
+        <br>
+
+        <div id="generalCare">
+            In the General Care ward there are currently
+            <b th:text="${aftercare.getGeneralCareAvailable()}"></b>
+            /
+            <b th:text="${aftercare.getGeneralCareTotal()}"></b>
+            beds available.
+        </div>
+
+        <div id="mentalHealth">
+            In the Mental Health ward there are currently
+            <b th:text="${aftercare.getMentalHealthAvailable()}"></b>
+            /
+            <b th:text="${aftercare.getMentalHealthTotal()}"></b>
+            beds available.
+        </div>
+
+        <div id="dementia">
+            In the Dementia ward there are currently
+            <b th:text="${aftercare.getDementiaAvailable()}"></b>
+            /
+            <b th:text="${aftercare.getDementiaTotal()}"></b>
+            beds available.
+        </div>
+
+        <div id="rehab">
+            In the Rehabilitation ward there are currently
+            <b th:text="${aftercare.getRehabAvailable()}"></b>
+            /
+            <b th:text="${aftercare.getRehabTotal()}"></b>
+            beds available.
+        </div>
+
+        <div id="palliative">
+            In the Palliative Care ward there are currently
+            <b th:text="${aftercare.getPalliativeAvailable()}"></b>
+            /
+            <b id="GeneralCareTotal" th:text="${aftercare.getPalliativeTotal()}"></b>
+            beds available.
+        </div>
+    </section>
+
+    <br>
+
+    <table id="facilities">
+        <tr>
+            <th>Facility</th>
+            <th>Is this offered here?</th>
+        </tr>
+        <tr>
+            <td>Has 12 hour care?</td>
+            <td th:text="${aftercare.yesOrNo(aftercare.has12HourCare)}"></td>
+        </tr>
+
+        <tr>
+            <td>Is Welsh spoken?</td>
+            <td th:text="${aftercare.yesOrNo(aftercare.speaksWelsh)}"></td>
+        </tr>
+
+        <tr>
+            <td>Offers assisted living?</td>
+            <td th:text="${aftercare.yesOrNo(aftercare.assistedLiving)}"></td>
+        </tr>
+    </table>
+
+    <br>
+
+</section>
+
+<div id="map"></div>
+<p th:if="${error}" style="color: red; font-weight: bold;">
+    [[${error}]]
+</p>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const postcode = /*[[${aftercare.address}]]*/;
+        const url = `https://nominatim.openstreetmap.org/search?q=${postcode.trim()}&format=json&addressdetails=1`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    //Get the different fields within the address
+                    //If not found then it's replaced with a not found message
+                    var suburb = data[0].address.suburb || "Suburb not found";
+                    //Town/city can be used under the several names given below
+                    var town = data[0].address.town || data[0].address.city || data[0].address.county || "Town not found";
+                    var postcodeResult = data[0].address.postcode || "Postcode not found";
+                    var address = `${suburb}, ${town}, ${postcodeResult}`;
+                    document.getElementById('addressField').innerText = address;
+                } else {
+                    document.getElementById('addressField').innerText = 'No address found for the postcode of the care home.';
+                }
+            })
+            .catch(error => {
+                console.error('Error getting address:', error);
+                document.getElementById('addressField').innerText = 'Error getting address.';
+            });
+    });
+
+    function removeUnusedWards() {
+        if (Number(/*[[${aftercare.generalCareTotal}]]*/) === 0) {
+            document.getElementById("generalCare").style.display = "none"
+        }
+        if (Number(/*[[${aftercare.mentalHealthTotal}]]*/) === 0) {
+            document.getElementById("mentalHealth").style.display = "none"
+        }
+        if (Number(/*[[${aftercare.dementiaTotal}]]*/) === 0) {
+            document.getElementById("dementia").style.display = "none"
+        }
+        if (Number(/*[[${aftercare.rehabTotal}]]*/) === 0) {
+            document.getElementById("rehab").style.display = "none"
+        }
+        if (Number(/*[[${aftercare.palliativeTotal}]]*/) === 0) {
+            document.getElementById("palliative").style.display = "none"
+        }
+    }
+
+    removeUnusedWards();
+
+    var latitude = /*[[${latitude} ?: 51.5074]]*/; // Default to London latitude
+    var longitude = /*[[${longitude} ?: -0.1278]]*/; // Default to London longitude
+    var errorMessage = /*[[${error} ?: '']]*/;
+
+    // Initialize the map with zoom controls enabled
+    var map = L.map('map', {
+        zoomControl: true
+    }).setView([latitude, longitude], 13);
+
+    // Move zoom controls to the top-right corner
+    map.zoomControl.setPosition('topright');
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        detectRetina: true
+    }).addTo(map);
+
+    // Create a custom red icon
+    var redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.4/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    // Add a marker with the custom red icon
+    var marker = L.marker([latitude, longitude], {icon: redIcon}).addTo(map);
+    marker.bindPopup(
+        errorMessage ? `<b>Error:</b> ${errorMessage}` : `<b>Care Home Location</b>`
+    ).openPopup();
+
+    // Ensure the map size is updated correctly
+    map.invalidateSize();
+
+</script>
+</body>
+</html>

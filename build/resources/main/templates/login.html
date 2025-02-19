@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body class="login">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<form method="post" th:action="@{/login}" class="formStyle">
+    <p class="no-account">
+        Don't have an account? <a href="/user/register" class="create-one">Create One &#x2192;</a>
+    </p>
+
+    <input name="username" type="text" class="form-input" placeholder="Email address" required />
+    <input name="password" type="password" class="form-input" placeholder="Password" required />
+
+    <!-- Error Message -->
+    <div th:if="${param.error}" class="error-message">
+        Invalid username or password. Please try again.
+    </div>
+
+    <button type="submit" class="login-button"> Login </button>
+</form>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

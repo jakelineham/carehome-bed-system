@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit facility</title>
+  <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<form id="editForm" name="editForm" onsubmit="return validate()" th:action="@{/editAftercare}" th:method="POST" class="formStyle">
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+  <h1 id="editFormTitle">Edit facility details</h1>
+  <input type="hidden" name="id" th:value="${aftercare.id}">
+  <label id="homeName">Facility name: <input type="text" name="homeName" th:value="${aftercare.homeName}"></label>
+  <br>
+  <label id="email">Email: <input type="text" name="email" th:value="${aftercare.email}"></label>
+  <br>
+  <label id="phoneNo">Phone number: <input type="text" name="phoneNo" th:value="${aftercare.phoneNo}"></label>
+  <br>
+  <label for="has12HourCare">Does the facility offer 12 hour care?:</label>
+  <select name="has12HourCare" id="has12HourCare">
+    <option value="true" th:selected="${aftercare.has12HourCare} == true">Yes</option>
+    <option value="false" th:selected="${aftercare.has12HourCare} == false">No</option>
+  </select>
+  <br>
+  <label for="speaksWelsh">Does the facility speak Welsh?:</label>
+  <select name="speaksWelsh" id="speaksWelsh">
+    <option value="true" th:selected="${aftercare.speaksWelsh} == true">Yes</option>
+    <option value="false" th:selected="${aftercare.speaksWelsh} == false">No</option>
+  </select>
+  <br>
+  <label for="assistedLiving">Does the facility offer assisted living?:</label>
+  <select name="assistedLiving" id="assistedLiving">
+    <option value="true" th:selected="${aftercare.assistedLiving} == true">Yes</option>
+    <option value="false" th:selected="${aftercare.assistedLiving} == false">No</option>
+  </select>
+  <br>
+
+  <label> Does this care home have a general care ward?:
+    <input type="checkbox" name="generalCareWard" id="generalCareWard" onclick='toggleHiddenField("generalCareWard", "generalCareWardFields")' th:checked="${aftercare.generalCareTotal != 0}">
+  </label>
+
+  <section id="generalCareWardFields" style="display: none">
+    <label> How many general care beds are there in total?
+      <!-- There is a hidden field so that if there is already a value then it is kept -->
+      <input type="number" name="generalCareWardTotalBeds" th:value="${aftercare.generalCareTotal}">
+      <input type="hidden" name="generalCareWardAvailableBeds" th:value="${aftercare.generalCareAvailable}">
+    </label>
+  </section>
+
+  <br>
+
+  <label> Does this care home have a mental health ward?:
+    <input type="checkbox" name="mentalHealthWard" id="mentalHealthWard" onclick='toggleHiddenField("mentalHealthWard", "mentalHealthWardFields")' th:checked="${aftercare.mentalHealthTotal != 0}">
+  </label>
+
+  <section id="mentalHealthWardFields" style="display: none">
+    <label> How many beds are there in total within the mental health ward?
+      <input type="number" name="mentalHealthWardTotalBeds" th:value="${aftercare.mentalHealthTotal}">
+      <input type="hidden" name="mentalHealthWardAvailableBeds" th:value="${aftercare.mentalHealthAvailable}">
+    </label>
+  </section>
+
+  <br>
+
+  <label> Does this care home have a dementia ward?:
+    <input type="checkbox" name="dementiaWard" id="dementiaWard" onclick='toggleHiddenField("dementiaWard", "dementiaWardFields")' th:checked="${aftercare.dementiaTotal != 0}">
+  </label>
+
+  <section id="dementiaWardFields" style="display: none">
+    <label> How many beds are there in total within the dementia ward?
+      <input type="number" name="dementiaWardTotalBeds" th:value="${aftercare.dementiaTotal}">
+      <input type="hidden" name="dementiaWardAvailableBeds" th:value="${aftercare.dementiaAvailable}">
+    </label>
+  </section>
+
+  <br>
+
+  <label> Does this care home have a rehabilitation ward?:
+    <input type="checkbox" name="rehabWard" id="rehabWard" onclick='toggleHiddenField("rehabWard", "rehabWardFields")' th:checked="${aftercare.rehabTotal != 0}">
+  </label>
+
+  <section id="rehabWardFields" style="display: none">
+    <label> How many beds are there in total within the rehabilitation ward?
+      <input type="number" name="rehabWardTotalBeds" th:value="${aftercare.rehabTotal}">
+      <input type="hidden" name="rehabWardAvailableBeds" th:value="${aftercare.rehabAvailable}">
+    </label>
+  </section>
+
+  <br>
+
+  <label> Does this care home have a palliative care ward?:
+    <input type="checkbox" name="palliativeWard" id="palliativeWard" onclick='toggleHiddenField("palliativeWard", "palliativeWardFields")' th:checked="${aftercare.palliativeTotal != 0}">
+  </label>
+
+  <section id="palliativeWardFields" style="display: none">
+    <label> How many beds are there in total within the palliative care ward?
+      <input type="number" name="palliativeWardTotalBeds" th:value="${aftercare.palliativeTotal}">
+      <input type="hidden" name="palliativeWardAvailableBeds" th:value="${aftercare.palliativeAvailable}">
+    </label>
+  </section>
+
+  <br>
+
+  <b>All newly added wards will default to having 0 available beds.</b>
+
+  <button type="submit" id="submitButton">Submit changes</button>
+</form>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+
+<script>
+
+  function toggleHiddenField(checkboxId, sectionId) {
+    var checkbox = document.getElementById(checkboxId)
+    var extraFields = document.getElementById(sectionId)
+
+    if (checkbox.checked) {
+      extraFields.style.display = "block";
+    } else {
+      extraFields.style.display = "none";
+      //Clear the input in the field if the ward is not selected
+      document.forms["editForm"][checkboxId + "TotalBeds"].value = ''
+      document.forms["editForm"][checkboxId + "AvailableBeds"].value = ''
+    }
+  }
+
+  toggleHiddenField("generalCareWard", "generalCareWardFields");
+  toggleHiddenField("mentalHealthWard", "mentalHealthWardFields");
+  toggleHiddenField("rehabWard", "rehabWardFields");
+  toggleHiddenField("dementiaWard", "dementiaWardFields");
+  toggleHiddenField("palliativeWard", "palliativeWardFields");
+
+  function validateHiddenField(totalWardBeds, wardName) {
+    var wardTotal = document.forms["editForm"][totalWardBeds].value;
+    console.log(wardTotal)
+    if (wardTotal.length === 0) {
+      alert("The total number of beds in the " + wardName + " ward cannot be empty")
+      return false;
+    }
+
+    function checkWardIsAvailable() {
+      //Check at least one of the wards is available
+      const wardList = ["generalCareWard", "mentalHealthWard", "dementiaWard", "rehabWard", "palliativeWard"]
+      var hasWard = false;
+
+      for (let i = 0; i < wardList.length; i++) {
+        if (document.forms["editForm"][wardList[i]].checked === true) {
+          hasWard = true;
+        }
+      }
+
+      return hasWard;
+    }
+
+    function validate() {
+      var pass = true;
+      var homeName = document.forms["editForm"]["homeName"].value;
+
+      if (homeName.trim() === "") {
+        alert('Please enter a name');
+        pass = false;
+      }
+
+      if (homeName.length > 100) {
+        alert('Facility name should be less than 100 characters long');
+        pass = false;
+      }
+
+      var email = document.forms["editForm"]["email"].value.trim();
+      if (email === "") {
+        alert("Please enter an email address.");
+        pass = false;
+      }
+
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        alert("Please enter a valid email address.");
+        pass = false;
+      }
+
+      var phoneNum = document.forms["editForm"]["phoneNo"].value.trim();
+      if (phoneNum.length !== 11 || isNaN(phoneNum)) {
+        alert("Phone number must be 11 digits long.");
+        pass = false;
+      }
+
+      if (checkWardIsAvailable() === false) {
+        alert("The care home needs at least one ward");
+        return false;
+      }
+
+      //Validation for general care ward
+      var hasGeneralCareWard = document.forms["editForm"]["generalCareWard"].checked;
+      if (hasGeneralCareWard === true) {
+        if (validateHiddenField("generalCareWardTotalBeds", "general care") === false) {
+          return false;
+        }
+      }
+
+      //Validation for mental health ward
+      var hasMentalHealthWard = document.forms["editForm"]["mentalHealthWard"].checked;
+      if (hasMentalHealthWard === true) {
+        if (validateHiddenField("mentalHealthWardTotalBeds", "mental health") === false) {
+          return false;
+        }
+      }
+
+      //Validation for dementia ward
+      var hasDementiaWard = document.forms["editForm"]["dementiaWard"].checked;
+      if (hasDementiaWard === true) {
+        if (validateHiddenField("dementiaWardTotalBeds", "dementia") === false) {
+          return false;
+        }
+      }
+
+      //Validation for rehab ward
+      var hasRehabWard = document.forms["editForm"]["rehabWard"].checked;
+      if (hasRehabWard === true) {
+        if (validateHiddenField("rehabWardTotalBeds", "rehabilitation") === false) {
+          return false;
+        }
+      }
+
+      //Validation for palliative ward
+      var hasPalliativeWard = document.forms["editForm"]["palliativeWard"].checked;
+      if (hasPalliativeWard === true) {
+        if (validateHiddenField("palliativeWardTotalBeds", "palliative") === false) {
+          return false;
+        }
+      }
+
+      return pass;
+    }
+
+  }
+</script>
+</body>
+</html>

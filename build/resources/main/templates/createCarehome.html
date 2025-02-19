@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Care Home</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body onload="checkForError()">
+    <header th:insert="~{fragments/header :: header}"></header>
+
+    <form id="createCarehome" th:method="POST" th:action="@{/addCarehome}" class="formStyle" onsubmit="return validate()">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <h1>
+            Care Home Registration Form
+        </h1>
+        <label id="homeName"> Care home name:
+            <input type="text" name="homeName">
+        </label>
+
+        <label id="email">Email:
+            <input type="text" name="email">
+        </label>
+
+        <label id="address"> Address (Postcode):
+            <input type="text" name="address">
+        </label>
+
+        <label id="phoneNo"> Phone Number:
+            <!-- phone number as number type removes the leading 0 so must be text -->
+            <input type="text" name="phoneNo">
+        </label>
+
+        <label for="area"> Care home location: </label>
+        <select name="area" id="area">
+            <option value="Blaenau Gwent">Blaenau Gwent</option>
+            <option value="Bridgend">Bridgend</option>
+            <option value="Caerphilly">Caerphilly</option>
+            <option value="Cardiff">Cardiff</option>
+            <option value="Carmarthen">Carmarthen</option>
+            <option value="Ceredigion">Ceredigion</option>
+            <option value="Conwy">Conwy</option>
+            <option value="Denbighshire">Denbighshire</option>
+            <option value="Flintshire">Flintshire</option>
+            <option value="Gwynedd">Gwynedd</option>
+            <option value="Anglesey">Anglesey</option>
+            <option value="Merthyr Tydfil">Merthyr Tydfil</option>
+            <option value="Monmouthshire">Monmouthshire</option>
+            <option value="Neath Port Talbot">Neath Port Talbot</option>
+            <option value="Newport">Newport</option>
+            <option value="Pembrokeshire">Pembrokeshire</option>
+            <option value="Powys">Powys</option>
+            <option value="Rhondda Cynon Taf">Rhondda Cynon Taf</option>
+            <option value="Swansea">Swansea</option>
+            <option value="Torfaen">Torfaen</option>
+            <option value="Vale of Glamorgan">Vale of Glamorgan</option>
+            <option value="Wrexham">Wrexham</option>
+        </select>
+
+        <br>
+
+        <label id="has12HourCare"> Do they offer short stay vacancies?:
+            <!-- hidden field is needed as an unmarked checkbox does not appear as false -->
+            <input type="hidden" name="has12HourCare" value="false">
+            <input type="checkbox" name="has12HourCare">
+        </label>
+
+        <label id="speaksWelsh"> Does the care home offer services in Welsh?:
+            <input type="hidden" name="speaksWelsh" value="false">
+            <input type="checkbox" name="speaksWelsh">
+        </label>
+
+        <label id="assistedLiving"> Is assisted living offered?:
+            <input type="hidden" name="assistedLiving" value="false">
+            <input type="checkbox" name="assistedLiving">
+        </label>
+
+        <br>
+
+        <!-- General care ward -->
+        <label> Does this care home have a general care ward?:
+            <input type="checkbox" name="generalCareWard" id="generalCareWard" onclick='toggleHiddenField("generalCareWard", "generalCareWardFields")'>
+        </label>
+
+        <section id="generalCareWardFields" style="display: none">
+            <label> How many general care beds are there in total?
+                <input type="number" name="generalCareWardTotalBeds">
+            </label>
+
+            <label> How many general care beds are currently available?
+                <input type="number" name="generalCareWardAvailableBeds">
+            </label>
+        </section>
+
+        <br>
+
+        <!-- Mental health ward -->
+        <label> Does this care home have a mental health ward?:
+            <input type="checkbox" name="mentalHealthWard" id="mentalHealthWard" onclick='toggleHiddenField("mentalHealthWard", "mentalHealthWardFields")'>
+        </label>
+
+        <section id="mentalHealthWardFields" style="display: none">
+            <label> How many beds are there in total within the mental health ward?
+                <input type="number" name="mentalHealthWardTotalBeds">
+            </label>
+
+            <label> How many beds are currently available in the mental health ward?
+                <input type="number" name="mentalHealthWardAvailableBeds">
+            </label>
+        </section>
+
+        <br>
+
+        <!-- Dementia ward -->
+        <label> Does this care home have a dementia ward?:
+            <input type="checkbox" name="dementiaWard" id="dementiaWard" onclick='toggleHiddenField("dementiaWard", "dementiaWardFields")'>
+        </label>
+
+        <section id="dementiaWardFields" style="display: none">
+            <label> How many beds are there in total within the dementia ward?
+                <input type="number" name="dementiaWardTotalBeds">
+            </label>
+
+            <label> How many beds are currently available in the dementia ward?
+                <input type="number" name="dementiaWardAvailableBeds">
+            </label>
+        </section>
+
+        <br>
+
+        <!-- Rehabilitation ward -->
+        <label> Does this care home have a rehabilitation ward?:
+            <input type="checkbox" name="rehabWard" id="rehabWard" onclick='toggleHiddenField("rehabWard", "rehabFields")'>
+        </label>
+
+        <section id="rehabFields" style="display: none">
+            <label> How many beds are there in total within the rehabilitation ward?
+                <input type="number" name="rehabWardTotalBeds">
+            </label>
+
+            <label> How many beds are currently available in the rehabilitation ward?
+                <input type="number" name="rehabWardAvailableBeds">
+            </label>
+        </section>
+
+        <br>
+
+        <!-- Palliative care ward -->
+        <label> Does this care home have a palliative care ward?:
+            <input type="checkbox" name="palliativeWard" id="palliativeWard" onclick='toggleHiddenField("palliativeWard", "palliativeFields")'>
+        </label>
+
+        <section id="palliativeFields" style="display: none">
+            <label> How many beds are there in total within the palliative care ward?
+                <input type="number" name="palliativeWardTotalBeds" id="palliativeWardTotalBeds">
+            </label>
+
+            <label> How many beds are currently available in the palliative care ward?
+                <input type="number" name="palliativeWardAvailableBeds">
+            </label>
+        </section>
+
+        <br>
+
+        <button type="submit" id="submitButton">Register care home</button>
+    </form>
+
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <script th:inline="javascript">
+        function toggleHiddenField(checkboxId, sectionId) {
+            var checkbox = document.getElementById(checkboxId)
+            var extraFields = document.getElementById(sectionId)
+
+            if (checkbox.checked) {
+                extraFields.style.display = "block";
+            } else {
+                extraFields.style.display = "none";
+            }
+        }
+
+        //This function is used to validate the hidden field inputs if they exist to trim down repeating code
+        function validateHiddenField(totalBedNum, totalWardBeds, availableWardBeds, wardName) {
+            var wardTotal = document.forms["createCarehome"][totalWardBeds].value;
+            console.log(wardTotal)
+            if (wardTotal.length === 0) {
+                alert("The total number of beds in the " + wardName + " ward cannot be empty")
+                return false;
+            }
+            else if (parseInt(wardTotal) > parseInt(totalBedNum)){
+                alert(wardName + " total cannot be more than the total amount of beds in the entire care home.")
+                return false;
+            }
+
+            var wardAvailable = document.forms["createCarehome"][availableWardBeds].value;
+            if (wardAvailable.length === 0) {
+                alert("The number of available beds in the " + wardName + " ward cannot be empty")
+                return false;
+            }
+            else if (parseInt(wardAvailable) > parseInt(wardTotal)){
+                alert("The amount of available beds available in the " + wardName + " ward cannot be more than the total amount of beds in the ward.")
+                return false;
+            }
+        }
+
+        function validatePostcode(postcode) {
+            var xhttp = new XMLHttpRequest();
+            var apiUrl = 'https://api.postcodes.io/postcodes/' + postcode + '/validate';
+
+            /*
+            The request must be synchronous otherwise the form will
+            submit before the validation is complete
+             */
+            xhttp.open("GET", apiUrl, false);
+            xhttp.send();
+
+            if (xhttp.status === 200) {
+                const response = JSON.parse(xhttp.responseText);
+                //The result confirms whether the postcode is a real UK postcode
+                return response.result === true;
+            }
+
+            return false;
+        }
+
+        function checkWardIsAvailable() {
+            //Check at least one of the wards is available
+            const wardList = ["generalCareWard", "mentalHealthWard", "dementiaWard", "rehabWard", "palliativeWard"]
+            var hasWard = false;
+
+            for (let i = 0; i < wardList.length; i++ ) {
+                if (document.forms["createCarehome"][wardList[i]].checked === true){
+                    hasWard = true;
+                }
+            }
+
+            return hasWard;
+        }
+
+        function checkPhoneNo(phoneNo){
+            if(phoneNo.charAt(0) != 0){
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+
+        function validate() {
+            //If there is no input in care home name then don't pass
+            var name = document.forms["createCarehome"]["homeName"].value;
+            if (name.trim() === "") {
+                alert("Please enter the name of the care home.");
+                return false;
+                //Or if the name is less than 3 characters
+            } else if (name.length < 3) {
+                alert("The care home name must be at least 3 characters long.");
+                return false;
+            }
+
+            var email = document.forms["createCarehome"]["email"].value;
+
+            if (email.trim() === ""){
+                alert("Please enter an email address");
+                return false;
+            }
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+
+
+            var postcode = document.forms["createCarehome"]["address"].value;
+            if (postcode.trim() === "") {
+                alert("Please enter a postcode.");
+                return false;
+            }
+
+            var isValid = validatePostcode(postcode);
+            if (isValid === false) {
+                alert("Please enter a valid UK postcode.");
+                return false;
+            }
+
+            var phoneNum = document.forms["createCarehome"]["phoneNo"].value;
+            if (phoneNum.length !== 11) {
+                alert("Phone number must be 11 numbers long")
+                return false
+            }
+
+            if (checkPhoneNo(phoneNum) === false){
+                alert("Phone number must start with a 0")
+                return false;
+            }
+
+            var totalBedNum = getTotalAvailableBeds();
+            if (totalBedNum.length === 0){
+                alert("The total amount of beds available cannot be 0.")
+                return false;
+            }
+            else if (totalBedNum < 4){
+                alert("You need at least 4 beds minimum within a care home");
+                return false;
+            }
+
+            //Check there is at least one ward available
+            if (checkWardIsAvailable() === false){
+                alert("The care home needs at least one ward");
+                return false;
+            }
+
+            //Validation for general care ward
+            var hasGeneralCareWard = document.forms["createCarehome"]["generalCareWard"].checked;
+            if (hasGeneralCareWard === true){
+                if (validateHiddenField(totalBedNum, "generalCareWardTotalBeds", "generalCareWardAvailableBeds", "general care") === false){
+                    return false;
+                }
+            }
+
+            //Validation for mental health ward
+            var hasMentalHealthWard = document.forms["createCarehome"]["mentalHealthWard"].checked;
+            if (hasMentalHealthWard === true){
+                if (validateHiddenField(totalBedNum, "mentalHealthWardTotalBeds", "mentalHealthWardAvailableBeds", "mental health") === false){
+                    return false;
+                }
+            }
+
+            //Validation for dementia ward
+            var hasDementiaWard = document.forms["createCarehome"]["dementiaWard"].checked;
+            if (hasDementiaWard === true){
+                if (validateHiddenField(totalBedNum, "dementiaWardTotalBeds", "dementiaWardAvailableBeds", "dementia") === false){
+                    return false;
+                }
+            }
+
+            //Validation for rehab ward
+            var hasRehabWard = document.forms["createCarehome"]["rehabWard"].checked;
+            if (hasRehabWard === true){
+                if (validateHiddenField(totalBedNum, "rehabWardTotalBeds", "rehabWardAvailableBeds", "rehabilitation") === false){
+                    return false;
+                }
+            }
+
+            //Validation for palliative ward
+            var hasPalliativeWard = document.forms["createCarehome"]["palliativeWard"].checked;
+            if (hasPalliativeWard === true){
+                if (validateHiddenField(totalBedNum, "palliativeWardTotalBeds", "palliativeWardAvailableBeds", "palliative") === false){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function getTotalAvailableBeds() {
+            return document.forms["createCarehome"]["generalCareWardTotalBeds"].value +
+                document.forms["createCarehome"]["mentalHealthWardTotalBeds"].value +
+                document.forms["createCarehome"]["dementiaWardTotalBeds"].value +
+                document.forms["createCarehome"]["rehabWardTotalBeds"].value +
+                document.forms["createCarehome"]["palliativeWardTotalBeds"].value;
+        }
+
+        function checkForError() {
+            let errorMessage = /*[[${errorMessage}]]*/ '';
+            console.log(errorMessage);
+            if(errorMessage !== '' && errorMessage != null) {
+                alert(errorMessage);
+            }
+        }
+    </script>
+</body>
+</html>

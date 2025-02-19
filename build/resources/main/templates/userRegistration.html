@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body onload="checkForError()">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<h1>Register as a user</h1>
+
+<form id="userReg" class="formStyle" th:method="POST" th:action="@{/registerUser}" onsubmit="return validate()">
+    <input type="hidden" th:value="${_csrf.token}" id="csrfToken">
+
+    <label id="userType">Select your user type:</label>
+    <select name="userType" id="selectUserType">
+        <!-- The user cannot see the first blank option, it's there so when the page is loaded,
+        there is no way for the user to see a user type without seeing the description-->
+        <option value="" selected disabled>Select a user type</option>
+        <option value="socialService">Social Service</option>
+        <option value="carehomeManager">Carehome Manager</option>
+        <option value="stakeholder">Stakeholder</option>
+        <option value="societyManager">Society Manager</option>
+    </select>
+
+    <div id="userTypeDescription"></div>
+
+    <section id="carehomeManagerDetails" style="display: none">
+        <br>
+        <!-- Choose your carehome from the list -->
+        <!-- If not then register one -->
+        <label for="assignedCarehomeId">Select Carehome:</label>
+        <select name="assignedCarehomeId" id="assignedCarehomeId">
+            <option value="">--Select a Carehome--</option>
+            <option th:each="facility : ${facilities}"
+                    th:value="${facility.id}"
+                    th:text="${facility.homeName}"></option>
+        </select>
+        Is your carehome not in the list? <a href="/carehome/add">Click here to register a new care home.</a>
+        <br>
+    </section>
+
+    <br>
+
+    <label id="name"> Full Name:
+        <input type="text" name="name">
+    </label>
+
+    <label id="email"> Email:
+        <input type="text" name="email">
+    </label>
+
+    <label id="password"> Password:
+        <input type="password" name="password">
+    </label>
+
+    <label id="area"> Area:
+        <select name="area">
+            <option value="" selected disabled>Select your area:</option>
+            <option value="Blaenau Gwent">Blaenau Gwent</option>
+            <option value="Bridgend">Bridgend</option>
+            <option value="Caerphilly">Caerphilly</option>
+            <option value="Cardiff">Cardiff</option>
+            <option value="Carmarthen">Carmarthen</option>
+            <option value="Ceredigion">Ceredigion</option>
+            <option value="Conwy">Conwy</option>
+            <option value="Denbighshire">Denbighshire</option>
+            <option value="Flintshire">Flintshire</option>
+            <option value="Gwynedd">Gwynedd</option>
+            <option value="Anglesey">Anglesey</option>
+            <option value="Merthyr Tydfil">Merthyr Tydfil</option>
+            <option value="Monmouthshire">Monmouthshire</option>
+            <option value="Neath Port Talbot">Neath Port Talbot</option>
+            <option value="Newport">Newport</option>
+            <option value="Pembrokeshire">Pembrokeshire</option>
+            <option value="Powys">Powys</option>
+            <option value="Rhondda Cynon Taf">Rhondda Cynon Taf</option>
+            <option value="Swansea">Swansea</option>
+            <option value="Torfaen">Torfaen</option>
+            <option value="Vale of Glamorgan">Vale of Glamorgan</option>
+            <option value="Wrexham">Wrexham</option>
+        </select>
+    </label>
+
+    <button type="submit" id="submitButton">Register account</button>
+
+</form>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="javascript">
+
+    function editUserTypeDesc() {
+        var selectedUserType = document.getElementById("selectUserType").value;
+        var userTypeDescription = document.getElementById("userTypeDescription");
+
+        // Descriptions for each user type
+        var descriptions = {
+            socialService: "A social service can search and find care homes in their area.",
+            carehomeManager: "A carehome manager can update available beds and edit the details of their care home.",
+            stakeholder: "A stakeholder can view bed fill rate stats, in an area, over the course of a year.",
+            societyManager: "A society manager can approve user applications from their area."
+        };
+
+        // Update the description if the user type exists in descriptions
+        if (descriptions[selectedUserType]) {
+            userTypeDescription.innerHTML = descriptions[selectedUserType];
+        }
+    }
+
+    //If carehomeManager is selected then show the extra field
+    function toggleCarehomeManagerDetails() {
+        var selectedUserType = document.getElementById("selectUserType").value;
+        var carehomeManagerDetails = document.getElementById("carehomeManagerDetails");
+        var assignedCareHome = document.getElementById("assignedCarehomeId");
+
+        if (selectedUserType === "carehomeManager") {
+            carehomeManagerDetails.style.display = "block";
+            assignedCareHome.setAttribute("required", "true");
+        } else {
+            carehomeManagerDetails.style.display = "none";
+            assignedCareHome.removeAttribute("required");
+        }
+    }
+
+    function validate() {
+        //Validate if a user type is selected
+        var userType = document.forms["userReg"]["userType"].value;
+        if (userType.trim() === ""){
+            alert("Please select a user type")
+            return false;
+        }
+
+        //Selected carehome validation
+        var selectedCarehome = document.forms["userReg"]["assignedCarehomeId"].value;
+
+        console.log("Carehome ID is of type: " + selectedCarehome);
+
+        if (userType === "carehomeManager" && selectedCarehome === "0") {
+            alert("Please select your carehome. If it is not in the list you can register one.")
+            return false;
+        }
+
+        var name = document.forms["userReg"]["name"].value;
+
+        if (name.trim() === ""){
+            alert("Please enter your name");
+            return false;
+        }
+
+        //Email validation
+        var email = document.forms["userReg"]["email"].value;
+
+        if (email.trim() === ""){
+            alert("Please enter an email address");
+            return false;
+        }
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address.");
+            return false;
+        }
+
+        //Password validation
+        var password = document.forms["userReg"]["password"].value;
+        if (password.trim() === ""){
+            alert("Please enter a password");
+            return false;
+        }
+
+        var area = document.forms["userReg"]["area"].value;
+        if (area.trim() === ""){
+            alert("Please choose your area");
+            return false;
+        }
+
+        return true;
+    }
+
+    function checkForError() {
+        let errorMessage = /*[[${errorMessage}]]*/ '';
+        console.log(errorMessage);
+        if(errorMessage !== '' && errorMessage != null) {
+            alert(errorMessage);
+        }
+    }
+
+    document.getElementById("selectUserType").addEventListener("change", editUserTypeDesc);
+    document.getElementById("selectUserType").addEventListener("change", toggleCarehomeManagerDetails);
+
+</script>
+</body>
+</html>

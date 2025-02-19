@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+
+  <!-- Link to external CSS file -->
+  <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body class="dashboard">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<!-- Society Manager dashboard grid -->
+<div class="dashboard-grid">
+  <a href="/carehome/search" class="dashboardButton">
+    <img src="/images/Dashboard/carehome.jpg" alt="Care Home Icon" />
+    Find Care Homes
+  </a>
+  <a href="/societyManager/incomingRegistrations" class="dashboardButton">
+    <img src="/images/Dashboard/approve.jpg" alt="Approve Icon" />
+    Approve User Registrations
+  </a>
+  <a th:href="@{/user/edit/{id}(id=${userId})}" class="dashboardButton">
+    <img src="/images/Dashboard/editprofile.jpg" alt="Edit Info Icon" />
+    Edit Your Profile
+  </a>
+</div>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+

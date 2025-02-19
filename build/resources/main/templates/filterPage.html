@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+    <title>Search for care homes</title>
+</head>
+<body>
+    <header th:insert="~{fragments/header :: header}"></header>
+
+    <input type="hidden" th:value="${_csrf.token}" id="csrfToken">
+
+    <div class="filterContainer">
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <form id="filterForm" onsubmit="filterResults(event)">
+
+                <label for="homeNameSearch">Search for a name:
+                    <input type="text" id="homeNameSearch" name="homeNameSearch" placeholder="Search by name...">
+                </label>
+
+                <label for="areaDropdown">Search by Area:
+                    <select id="areaDropdown" name="areaDropdown">
+                        <option value="">Select Area...</option>
+                        <option value="Blaenau Gwent">Blaenau Gwent</option>
+                        <option value="Bridgend">Bridgend</option>
+                        <option value="Caerphilly">Caerphilly</option>
+                        <option value="Cardiff">Cardiff</option>
+                        <option value="Carmarthen">Carmarthen</option>
+                        <option value="Ceredigion">Ceredigion</option>
+                        <option value="Conwy">Conwy</option>
+                        <option value="Denbighshire">Denbighshire</option>
+                        <option value="Flintshire">Flintshire</option>
+                        <option value="Gwynedd">Gwynedd</option>
+                        <option value="Anglesey">Anglesey</option>
+                        <option value="Merthyr Tydfil">Merthyr Tydfil</option>
+                        <option value="Monmouthshire">Monmouthshire</option>
+                        <option value="Neath Port Talbot">Neath Port Talbot</option>
+                        <option value="Newport">Newport</option>
+                        <option value="Pembrokeshire">Pembrokeshire</option>
+                        <option value="Powys">Powys</option>
+                        <option value="Rhondda Cynon Taf">Rhondda Cynon Taf</option>
+                        <option value="Swansea">Swansea</option>
+                        <option value="Torfaen">Torfaen</option>
+                        <option value="Vale of Glamorgan">Vale of Glamorgan</option>
+                        <option value="Wrexham">Wrexham</option>
+                    </select>
+                </label>
+
+                <h3>Search by Services:</h3>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">12 Hour Care<input type="checkbox" name="has12HourCare" class="filterCheckbox"></label><br>
+                </section >
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Has Welsh Speakers<input type="checkbox" name="speaksWelsh" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Has Assisted Living<input type="checkbox" name="assistedLiving" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">General Care Ward<input type="checkbox" name="hasGeneralWard" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Mental Health Ward<input type="checkbox" name="hasMentalWard" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Dementia Ward<input type="checkbox" name="hasDementiaWard" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Rehabilitation Ward<input type="checkbox" name="hasRehabilitationWard" class="filterCheckbox"></label><br>
+                </section>
+                <section class="checkboxContainer">
+                    <label class="filterCheckboxLabel">Palliative Care Ward<input type="checkbox" name="hasPalliativeWard" class="filterCheckbox"></label>
+                </section>
+                <br>
+
+                <button type="submit">Find Care Homes</button>
+            </form>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section">
+            <h2>Search Results</h2>
+
+            <section id="filterResults"></section>
+
+            <section id="filterNavBar" class="filterNavbar">
+                <button id="goBack" class="pageButton" onclick="goBack()" disabled>Previous</button>
+                <div id="pageNum" class="pageNum"></div>
+                <button id="goToNext" class="pageButton" onclick="goNext()" disabled>Next</button>
+            </section>
+        </section>
+    </div>
+    <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+    <script>
+        let elementsPerPage = 4;
+        let currentPage = 1;
+        let currentlyFilteredResults = [];
+        let totalNumOfPages = 0;
+
+        function filterResults(event) {
+            let csrf = document.getElementById("csrfToken").value;
+            let filterForm = document.getElementById("filterForm");
+            let formData = new FormData(filterForm);
+            let params = new URLSearchParams();
+            formData.forEach((value, key) => {
+                params.append(key, value);
+            });
+
+            event.preventDefault();
+            event.stopPropagation();
+            let xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/filter", true);
+            xhttp.setRequestHeader('X-CSRF-TOKEN', csrf);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+            xhttp.onreadystatechange = function() {
+                if(xhttp.readyState === 4) {
+                    if(xhttp.status === 200) {
+                        currentlyFilteredResults = JSON.parse(xhttp.responseText);
+                        currentPage = 1;
+                        showFilterResults(currentlyFilteredResults);
+                    }
+                }
+            }
+            xhttp.send(params.toString());
+        }
+
+        function updateFilterNavBar() {
+            // Math.ceil here rounds up the number passed in, which lets the totalNumOfPages be as much as it needs.
+            totalNumOfPages = Math.ceil(currentlyFilteredResults.length / elementsPerPage);
+            let pageNum = document.getElementById("pageNum");
+            let backButton = document.getElementById("goBack");
+            let nextButton = document.getElementById("goToNext");
+
+            backButton.disabled = (currentPage === 1);  // The sum in the brackets will return either a true or false value.
+            nextButton.disabled = (currentPage === totalNumOfPages);
+
+            pageNum.textContent = `Page ${currentPage} of ${totalNumOfPages}`;
+        }
+
+        function goBack() {
+            if(currentPage > 1) {
+                currentPage--;
+                showFilterResults(currentlyFilteredResults);
+            }
+        }
+
+        function goNext() {
+            console.log("This is running")
+            console.log("Current page: " + currentPage);
+            console.log("TotalNumOfPAges: " + totalNumOfPages);
+            if(currentPage < totalNumOfPages) {
+                currentPage++;
+                showFilterResults(currentlyFilteredResults);
+            }
+        }
+
+        function showFilterResults(filteredCareHomes) {
+            let resultsList = document.getElementById("filterResults");
+            resultsList.innerHTML = "";
+
+            let startIndex = (currentPage - 1) * elementsPerPage;
+            let endIndex = startIndex + elementsPerPage;
+            let currentPageData = filteredCareHomes.slice(startIndex, endIndex);  // The slice function here allows only a certain part of the entire resultsList HTML to be returned.
+
+            currentPageData.forEach(home => {
+                const homeDiv = document.createElement("div");
+                homeDiv.className = "searchResult";
+                let totalFreeBeds = getTotalFreeBeds(home);
+                let availabilityColour = getAvailabilityColour(home.totalNumOfBeds, totalFreeBeds);
+                let servicesAvailable = getAvailableServices(home);
+
+                homeDiv.innerHTML = `
+                        <h3><a href="/carehome/${home.id}">${home.homeName}</a></h3>
+                        <p>Beds Available: ${totalFreeBeds} / ${home.totalNumOfBeds}</p>
+                        <p>Services: ${servicesAvailable.join(", ")}</p>
+                        <p><strong>Area: </strong>${home.area}</p>
+                        <span style="background-color: ${availabilityColour}">__</span>
+                    `;
+                resultsList.appendChild(homeDiv);
+            })
+            updateFilterNavBar();
+        }
+
+        function getAvailabilityColour(totalBeds, totalFreeBeds) {
+            let availablePercentage = (totalFreeBeds / totalBeds) * 100
+            availablePercentage = availablePercentage.toFixed(2);
+
+            if(availablePercentage == 0) {
+                return "red";
+            }
+            else if(availablePercentage < 25) {
+                return "orange";
+            }
+            else if(availablePercentage >=25 && availablePercentage <= 50) {
+                return "yellow";
+            }
+            else {
+                return "green";
+            }
+        }
+
+        function getTotalFreeBeds(careHome) {
+            return careHome.generalCareAvailable + careHome.mentalHealthAvailable +
+                careHome.dementiaAvailable + careHome.rehabAvailable + careHome.palliativeAvailable;
+        }
+
+        function getAvailableServices(careHome) {
+            let services = [];
+            if(careHome.generalCareAvailable !== 0) {
+                services.push("General Care");
+            }
+            if(careHome.mentalHealthAvailable !== 0) {
+                services.push("Mental Health Care");
+            }
+            if(careHome.dementiaAvailable !== 0) {
+                services.push("Dementia Care");
+            }
+            if(careHome.rehabAvailable !== 0) {
+                services.push("Rehabilitation Care");
+            }
+            if(careHome.palliativeAvailable !== 0) {
+                services.push("Palliative Care");
+            }
+            return services;
+        }
+    </script>
+</body>
+</html>

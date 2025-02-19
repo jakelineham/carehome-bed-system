@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Contact Us Confirmation</title>
+
+    <!-- Link to external stylesheet -->
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<div class="confirmation-message">
+    <h1>Thank You!</h1>
+    <p>Your message has been submitted successfully.</p>
+</div>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

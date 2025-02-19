@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled Header</title>
+</head>
+    <body>
+        <header id="header">
+            <!-- Top Section -->
+            <div class="headerLogos">
+                <div class="leftLogo">
+                    <img src="/images/logos/CapacityTrackerLogo.png" alt="Capacity Tracker Logo" class="headerLogo">
+                    <div class="headerTitle">
+                        <h1>Nexus.Cymru</h1>
+                        <p>Built in partnership with NHS, local authorities and care home providers.</p>
+                    </div>
+                </div>
+                <img src="/images/logos/NHSWalesLogo.png" alt="NHS Wales Logo" class="rightLogo">
+            </div>
+
+            <!-- Navigation Bar -->
+            <nav class="navBar">
+                <ul>
+                    <li style="margin-left: 25px;">
+                        <a href="/home" class="navButton" id="goToHome">
+                            <img src="/images/logos/InvertedHomeLogo.png" alt="Home" id="homeLogo">
+                        </a>
+                    </li>
+                    <li style="margin-left: 18px;">
+                        <button class="navButton" onclick="window.location.href='/user/register';"> Register </button>
+                    </li>
+                    <ul style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; list-style: none; margin-left: auto; padding: 0;">
+                        <li style="margin-right: 28px;">
+                            <button class="navButton" onclick="window.location.href='/contactUs';">Contact Us</button>
+                        </li>
+                        <li style="margin-right: 25px;">
+                            <form th:action="@{/logout}" method="post">
+                                <button class="navButton" type="submit">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </ul>
+            </nav>
+        </header>
+    </body>
+</html>

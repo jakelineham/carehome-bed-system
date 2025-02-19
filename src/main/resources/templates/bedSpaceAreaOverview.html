@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+    <meta charset="UTF-8">
+    <title>Bed availability overview</title>
+</head>
+<body onload="onStartup()">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<input type="hidden" th:value="${_csrf.token}" id="csrfToken">
+
+<h1 class="pageTitle">Bed Area Current Overview</h1>
+
+<section class="formStyle">
+    <label for="AreaOverviewSelect">
+        Select an area to overview:
+        <select id="AreaOverviewSelect" onchange="showAreaOverview()">
+            <option value="Blaenau Gwent">Blaenau Gwent</option>
+            <option value="Bridgend">Bridgend</option>
+            <option value="Caerphilly">Caerphilly</option>
+            <option value="Cardiff">Cardiff</option>
+            <option value="Carmarthen">Carmarthen</option>
+            <option value="Ceredigion">Ceredigion</option>
+            <option value="Conwy">Conwy</option>
+            <option value="Denbighshire">Denbighshire</option>
+            <option value="Flintshire">Flintshire</option>
+            <option value="Gwynedd">Gwynedd</option>
+            <option value="Anglesey">Anglesey</option>
+            <option value="Merthyr Tydfil">Merthyr Tydfil</option>
+            <option value="Monmouthshire">Monmouthshire</option>
+            <option value="Neath Port Talbot">Neath Port Talbot</option>
+            <option value="Newport">Newport</option>
+            <option value="Pembrokeshire">Pembrokeshire</option>
+            <option value="Powys">Powys</option>
+            <option value="Rhondda Cynon Taf">Rhondda Cynon Taf</option>
+            <option value="Swansea">Swansea</option>
+            <option value="Torfaen">Torfaen</option>
+            <option value="Vale of Glamorgan">Vale of Glamorgan</option>
+            <option value="Wrexham">Wrexham</option>
+        </select>
+    </label>
+    <br>
+    <h2>Total amount of beds in this area:
+        <b id="totalBedNum"></b>
+    </h2>
+    <br>
+    <h2>Total amount of free beds currently available in this area:
+        <b id="totalFreeBedNum"></b>
+    </h2>
+    <br>
+    <h2>Percentage of beds filled in this area currently:
+        <b id="freeBedPercentage"></b>
+    </h2>
+</section>
+<br>
+<section class="formStyle">
+    <!-- Dynamically update to show "Percentage of beds filled in [Area] over [Year]" -->
+    <h2 id="yearlyTitle"></h2>
+    <canvas id="areaPercentageBarChart"></canvas>
+
+    <button id="generateReportButton" onclick="generateReport()">Generate Report</button>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javaScript">
+    function onStartup() {
+        var currentYear = new Date().getFullYear();
+        var startYear = currentYear - 10;
+        var yearSelect = document.getElementById("AreaYearSelect");
+
+        // Create year dropdown dynamically
+        var selectLabel = document.createElement('label');
+        selectLabel.htmlFor = "AreaYearSelect";
+        selectLabel.innerHTML = 'Select a year to show data for: ';
+        var parentSection = document.querySelector('section.formStyle:nth-of-type(2)');
+        parentSection.insertBefore(selectLabel, parentSection.firstChild);
+
+        var yearDropdown = document.createElement('select');
+        yearDropdown.id = 'AreaYearSelect';
+        yearDropdown.setAttribute('onchange', 'ajaxChart()');
+
+        for(let i = currentYear; i >= startYear; i--) {
+            var yearOption = document.createElement('option');
+            yearOption.value = i;
+            yearOption.textContent = i;
+            yearDropdown.appendChild(yearOption);
+        }
+        selectLabel.appendChild(yearDropdown);
+
+        showAreaOverview();
+    }
+
+    function showAreaOverview() {
+        var facilities = /*[[${facilities}]]*/ [];
+
+        var totalBeds = 0;
+        var totalFreeBeds = 0;
+
+        var chosenArea = document.getElementById("AreaOverviewSelect").value;
+
+        var facilitiesInArea = facilities.filter(function(facilities) {
+            return facilities.area === chosenArea;
+        });
+
+        for(var i = 0; i < facilitiesInArea.length; i++) {
+            totalBeds += facilitiesInArea[i].totalNumOfBeds;
+            totalFreeBeds += getTotalAvailableBeds(facilitiesInArea[i]);
+        }
+
+        if (totalBeds > 0) {
+            var percentage = ((totalBeds - totalFreeBeds) / totalBeds) * 100;
+            percentage = percentage.toFixed(2);
+            document.getElementById("freeBedPercentage").innerHTML = percentage + "%";
+        } else {
+            document.getElementById("freeBedPercentage").innerHTML = "N/A";
+        }
+
+        document.getElementById("totalBedNum").innerHTML = totalBeds;
+        document.getElementById("totalFreeBedNum").innerHTML = totalFreeBeds;
+
+        ajaxChart();
+    }
+
+    function getTotalAvailableBeds(facility) {
+        return facility.generalCareAvailable + facility.mentalHealthAvailable + facility.dementiaAvailable
+            + facility.rehabAvailable + facility.palliativeAvailable;
+    }
+
+    function ajaxChart() {
+        let csrf = document.getElementById("csrfToken").value;
+        let chosenArea = document.getElementById("AreaOverviewSelect").value;
+        let chosenYear = document.getElementById("AreaYearSelect").value;
+
+        let params = "area=" + chosenArea + "&year=" + chosenYear;
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/getChartData", true);
+        xhttp.setRequestHeader('X-CSRF-TOKEN', csrf);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState === 4) {
+                if (xhttp.status === 200) {
+                    let chartData = JSON.parse(xhttp.responseText);
+
+                    // Extract percentages and months
+                    let percentages = chartData.map(item => item.bedFillPercentage);
+                    let months = chartData.map(item => item.month);
+
+                    // Update the bar chart
+                    updateBarChart(percentages, months, chosenArea, chosenYear);
+                } else {
+                    console.error(xhttp.statusText);
+                }
+            }
+        };
+        xhttp.send(params);
+    }
+
+    let displayedChart = null; // Define displayedChart as a global variable
+
+    function updateBarChart(percentages, months, chosenArea, chosenYear) {
+        console.log("Updating bar chart with percentages:", percentages, "and months:", months);
+
+        const barChart = document.getElementById("areaPercentageBarChart");
+
+        // Month labels for the graph
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+        // Define a set of very distinct colors for each month
+        const monthColors = [
+            '#FF0000', // January - Red
+            '#FFA500', // February - Orange
+            '#FFFF00', // March - Yellow
+            '#008000', // April - Green
+            '#00FFFF', // May - Cyan
+            '#0000FF', // June - Blue
+            '#8A2BE2', // July - BlueViolet
+            '#FF00FF', // August - Magenta
+            '#A52A2A', // September - Brown
+            '#808000', // October - Olive
+            '#C71585', // November - MediumVioletRed
+            '#696969'  // December - DimGray
+        ];
+
+        const barColors = months.map(m => monthColors[m - 1]);
+
+        // "Percentage of beds filled in [ChosenArea] over [ChosenYear]"
+        document.getElementById("yearlyTitle").textContent = "Percentage of beds filled in " + chosenArea + " over " + chosenYear;
+
+        // Destroy the old chart if it exists
+        if (displayedChart != null) {
+            displayedChart.destroy();
+        }
+
+        // Create a bar chart with months on the x-axis
+        displayedChart = new Chart(barChart, {
+            type: 'bar',
+            data: {
+                labels: months.map(m => monthNames[m - 1]),
+                datasets: [{
+                    data: percentages,
+                    backgroundColor: barColors
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage of beds filled'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Bed Fill Percentage for ' + chosenYear,
+                        font: {
+                            size: 18
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        // Defaults to showing values on hover
+                    }
+                }
+            }
+        });
+    }
+
+    function generateReport() {
+        let csrf = document.getElementById("csrfToken").value;
+        let chosenArea = document.getElementById("AreaOverviewSelect").value;
+        let chosenYear = document.getElementById("AreaYearSelect").value;
+
+        let params = "area=" + chosenArea + "&year=" + chosenYear;
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/generateReport", true);
+        xhttp.setRequestHeader('X-CSRF-TOKEN', csrf);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhttp.responseType = 'blob';
+        xhttp.onload = function () {
+            if (xhttp.status === 200) {
+                // Create a Blob from the response
+                let blob = new Blob([xhttp.response], { type: 'text/plain' });
+
+                // Extract filename from Content-Disposition header
+                let disposition = xhttp.getResponseHeader('Content-Disposition');
+                let filename = 'BedFillRateReport.txt'; // Default name
+                if (disposition && disposition.includes('filename=')) {
+                    filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+                }
+
+                // Create a link and trigger download
+                let link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+            } else {
+                console.error("Error generating report: " + xhttp.statusText);
+            }
+        };
+        xhttp.send(params);
+    }
+</script>
+
+
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Updating beds</title>
+        <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+        <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+    </head>
+    <body>
+        <header th:insert="~{fragments/header :: header}"></header>
+
+
+        <form th:method="POST" th:action="@{/updateBedNum}" onsubmit="return validate()" id="newBedNumForm" class="formStyle">
+            <!-- CSRF Token -->
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+            <!-- Carehome Facility ID -->
+            <input type="hidden" name="facilityId" th:value="${aftercare.id}" />
+            <h1>
+                Updating bed/ward availability at <b th:text="${aftercare.homeName}"></b>.
+            </h1>
+            <section>
+                <b id="totalAvailableBeds"></b>
+                /
+                <b th:text="${aftercare.totalNumOfBeds}"></b>
+                beds available between all wards.
+            </section>
+
+            <br>
+
+            <section id="generalCareWardField" style="display: none">
+                <label> General Care Ward:
+                    <input type="number" name="generalCareWardAvailableBeds" th:value="${aftercare.generalCareAvailable}">    / <b th:text="${aftercare.generalCareTotal}"></b>
+                </label>
+                <br>
+            </section>
+
+            <section id="mentalHealthWardField" style="display: none">
+                <label> Mental Health Ward:
+                    <input type="number" name="mentalHealthWardAvailableBeds" th:value="${aftercare.mentalHealthAvailable}">     / <b th:text="${aftercare.mentalHealthTotal}"></b>
+                </label>
+                <br>
+            </section>
+
+            <section id="dementiaWardField" style="display: none">
+                <label> Dementia Ward:
+                    <input type="number" name="dementiaWardAvailableBeds" th:value="${aftercare.dementiaAvailable}">    / <b th:text="${aftercare.dementiaTotal}"></b>
+                </label>
+                <br>
+            </section>
+
+            <section id="rehabWardField" style="display: none">
+                <label> Rehabilitation Ward:
+                    <input type="number" name="rehabWardAvailableBeds" th:value="${aftercare.rehabAvailable}">    / <b th:text="${aftercare.rehabTotal}"></b>
+                </label>
+                <br>
+            </section>
+
+
+            <!-- Palliative care ward -->
+            <section id="palliativeWardField" style="display: none">
+                <label> Palliative Care Ward:
+                    <input type="number" name="palliativeWardAvailableBeds" th:value="${aftercare.palliativeAvailable}">    / <b th:text="${aftercare.palliativeTotal}"></b>
+                </label>
+                <br>
+            </section>
+
+            <button type="submit"><b>Submit</b></button>
+        </form>
+
+        <footer th:insert="~{fragments/footer :: footer}"></footer>
+
+        <script th:inline="javascript">
+            var generalCareTotal = /*[[${aftercare.generalCareTotal}]]*/;
+            var mentalHealthTotal = /*[[${aftercare.mentalHealthTotal}]]*/;
+            var dementiaTotal = /*[[${aftercare.dementiaTotal}]]*/;
+            var rehabTotal = /*[[${aftercare.rehabTotal}]]*/;
+            var palliativeTotal = /*[[${aftercare.palliativeTotal}]]*/;
+
+            function validateHiddenField(availableWardBeds, wardName, wardTotal) {
+                var wardAvailable = document.forms["newBedNumForm"][availableWardBeds].value;
+                if (wardAvailable.length === 0) {
+                    alert("The number of available beds in the " + wardName + " ward cannot be empty")
+                    return false;
+                }
+                else if (parseInt(wardAvailable) > parseInt(wardTotal)){
+                    alert("The amount of available beds available in the " + wardName + " ward cannot be more than the total amount of beds in the ward.")
+                    return false;
+                }
+            }
+
+            function validate() {
+                //Validation for general care ward
+                if (generalCareTotal !== 0){
+                    if (validateHiddenField("generalCareWardAvailableBeds", "general care", generalCareTotal) === false){
+                        return false;
+                    }
+                }
+
+                //Validation for mental health ward
+                if (mentalHealthTotal !== 0){
+                    if (validateHiddenField("mentalHealthWardAvailableBeds", "mental health", mentalHealthTotal) === false){
+                        return false;
+                    }
+                }
+
+                //Validation for dementia ward
+                if (dementiaTotal !== 0){
+                    if (validateHiddenField("dementiaWardAvailableBeds", "dementia", dementiaTotal) === false){
+                        return false;
+                    }
+                }
+
+                //Validation for rehab ward
+                if (rehabTotal !== 0){
+                    if (validateHiddenField("rehabWardAvailableBeds", "rehabilitation", rehabTotal) === false){
+                        return false;
+                    }
+                }
+
+                //Validation for palliative ward
+                if (palliativeTotal !== 0){
+                    if (validateHiddenField("palliativeWardAvailableBeds", "palliative", palliativeTotal) === false){
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            document.getElementById("totalAvailableBeds").innerHTML = (Number(/*[[${aftercare.generalCareAvailable}]]*/) +
+                Number(/*[[${aftercare.mentalHealthAvailable}]]*/) +  Number(/*[[${aftercare.dementiaAvailable}]]*/) +
+                Number(/*[[${aftercare.rehabAvailable}]]*/) + Number(/*[[${aftercare.palliativeAvailable}]]*/))
+
+            function toggleHiddenField(totalBeds, sectionId , wardName) {
+                var extraFields = document.getElementById(sectionId)
+
+                if (totalBeds !== 0) {
+                    extraFields.style.display = "block";
+                } else {
+                    extraFields.style.display = "none";
+                    //Clear the input in the fields if the ward is not selected
+                    document.forms["newBedNumForm"][wardName + "AvailableBeds"].value = ''
+                }
+            }
+
+            toggleHiddenField(generalCareTotal, "generalCareWardField", "generalCareWard");
+            toggleHiddenField(mentalHealthTotal, "mentalHealthWardField", "mentalHealthWard");
+            toggleHiddenField(dementiaTotal, "dementiaWardField", "dementiaWard");
+            toggleHiddenField(rehabTotal, "rehabWardField", "rehabWard")
+            toggleHiddenField(palliativeTotal, "palliativeWardField", "palliativeWard");
+        </script>
+    </body>
+
+</html>

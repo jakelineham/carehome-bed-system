@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Messages</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body class = "viewMessages">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<h1>View Messages:</h1> <!-- Added title for the page -->
+
+<div class="container">
+    <!-- Messages Table -->
+    <table class="messages-table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="message : ${messages}">
+            <td data-label="Name" th:text="${message.name}"></td>
+            <td data-label="Role" th:text="${message.userType}"></td>
+            <td data-label="Email" th:text="${message.email}"></td>
+            <td data-label="Actions">
+                <button th:onclick="'viewMessage(' + ${message.id} + ')'">View</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Message Details -->
+    <div class="message-details" id="messageDetails">
+        <h2>Message:</h2>
+        <p id="detailMessage"></p>
+        <button id="replyButton">Reply</button>
+        <button id="deleteButton">Delete</button>
+    </div>
+</div>
+
+<script>
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content'); // Fetch CSRF token
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content'); // Fetch CSRF header name
+
+    async function viewMessage(id) {
+        try {
+            const response = await fetch(`/viewMessage/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch message details.');
+
+            const message = await response.json();
+            document.getElementById('detailMessage').textContent = message.message;
+
+            const detailsSection = document.getElementById('messageDetails');
+            detailsSection.style.display = 'block';
+
+            document.getElementById('replyButton').onclick = () => {
+                window.location.href = `mailto:${message.email}`;
+            };
+
+            document.getElementById('deleteButton').onclick = async () => {
+                if (confirm('Are you sure you want to delete this message?')) {
+                    const deleteResponse = await fetch(`/deleteMessage/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken // Include CSRF token in the headers
+                        }
+                    });
+                    if (deleteResponse.ok) {
+                        alert('Message deleted.');
+                        location.reload();
+                    } else {
+                        alert('Failed to delete the message.');
+                    }
+                }
+            };
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Unable to display message details.');
+        }
+    }
+</script>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

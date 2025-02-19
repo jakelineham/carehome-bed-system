@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit user information</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<form id="userEdit" class="formStyle" onsubmit="return validate()" th:action="@{/editUser}" th:method="POST">
+    <h1 id="editFormTitle">Edit user details</h1>
+    <input type="hidden" name="id" th:value="${user.id}">
+
+    <label id="name">Name: <input type="text" name="name" th:value="${user.name}"></label>
+
+    <br>
+
+    <label id="email">Email: <input type="text" name="email" th:value="${user.email}"></label>
+
+    <br>
+
+    <label for="area">Area:</label>
+    <select name="area" id="area">
+        <option value="Blaenau Gwent" th:selected="${user.area == 'Blaenau Gwent'}">Blaenau Gwent</option>
+        <option value="Bridgend" th:selected="${user.area == 'Bridgend'}">Bridgend</option>
+        <option value="Caerphilly" th:selected="${user.area == 'Caerphilly'}">Caerphilly</option>
+        <option value="Cardiff" th:selected="${user.area == 'Cardiff'}">Cardiff</option>
+        <option value="Carmarthenshire" th:selected="${user.area == 'Carmarthenshire'}">Carmarthenshire</option>
+        <option value="Ceredigion" th:selected="${user.area == 'Ceredigion'}">Ceredigion</option>
+        <option value="Conwy" th:selected="${user.area == 'Conwy'}">Conwy</option>
+        <option value="Denbighshire" th:selected="${user.area == 'Denbighshire'}">Denbighshire</option>
+        <option value="Flintshire" th:selected="${user.area == 'Flintshire'}">Flintshire</option>
+        <option value="Gwynedd" th:selected="${user.area == 'Gwynedd'}">Gwynedd</option>
+        <option value="Isle of Anglesey" th:selected="${user.area == 'Isle of Anglesey'}">Isle of Anglesey</option>
+        <option value="Merthyr Tydfil" th:selected="${user.area == 'Merthyr Tydfil'}">Merthyr Tydfil</option>
+        <option value="Monmouthshire" th:selected="${user.area == 'Monmouthshire'}">Monmouthshire</option>
+        <option value="Neath Port Talbot" th:selected="${user.area == 'Neath Port Talbot'}">Neath Port Talbot</option>
+        <option value="Newport" th:selected="${user.area == 'Newport'}">Newport</option>
+        <option value="Pembrokeshire" th:selected="${user.area == 'Pembrokeshire'}">Pembrokeshire</option>
+        <option value="Powys" th:selected="${user.area == 'Powys'}">Powys</option>
+        <option value="Rhondda Cynon Taff" th:selected="${user.area == 'Rhondda Cynon Taff'}">Rhondda Cynon Taff</option>
+        <option value="Swansea" th:selected="${user.area == 'Swansea'}">Swansea</option>
+        <option value="Torfaen" th:selected="${user.area == 'Torfaen'}">Torfaen</option>
+        <option value="Vale of Glamorgan" th:selected="${user.area == 'Vale of Glamorgan'}">Vale of Glamorgan</option>
+        <option value="Wrexham" th:selected="${user.area == 'Wrexham'}">Wrexham</option>
+    </select>
+
+    <br>
+    <label id="password">Password:
+        <input type="password" name="password" placeholder="Leave blank to keep current password">
+    </label>
+    <br>
+
+    <button type="submit" id="submitButton">Submit changes</button>
+</form>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+
+<script>
+    function validate() {
+        //Uses the same validation as the user register page
+        var name = document.forms["userEdit"]["name"].value;
+
+        if (name.trim() === ""){
+            alert("Please enter your name");
+            return false;
+        }
+
+        //Email validation
+        var email = document.forms["userEdit"]["email"].value;
+
+        if (email.trim() === ""){
+            alert("Please enter an email address");
+            return false;
+        }
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address.");
+            return false;
+        }
+
+        // Area validation
+        var area = document.forms["userEdit"]["area"].value;
+        if (area.trim() === "") {
+            alert("Please choose your area.");
+            return false;
+        }
+
+        // Validate Password
+        var password = document.forms["editForm"]["password"].value;
+        if (password && password.length < 6) {
+            alert("Password must be at least 6 characters long.");
+            return false;
+        }
+
+        return true;
+
+    }
+</script>
+</html>

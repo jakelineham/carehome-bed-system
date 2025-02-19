@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+  <title>Dashboard</title>
+
+  <!-- Link to external CSS file -->
+  <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+</head>
+<body class="dashboard">
+<header th:insert="~{fragments/header :: header}"></header>
+
+<!-- Admin dashboard grid -->
+<div class="dashboard-grid">
+  <a href="/carehome/search" class="dashboardButton">
+    <img src="/images/Dashboard/carehome.jpg" alt="Care Home Icon" />
+    Find Care Homes
+  </a>
+  <a href="/admin/incomingCarehomes" class="dashboardButton">
+    <img src="/images/Dashboard/approve.jpg" alt="Approve Icon" />
+    Approve Care Home Registrations
+  </a>
+  <a href="/admin/carehome/edit" class="dashboardButton">
+    <img src="/images/Dashboard/editcarehome.jpg" alt="Care Home Icon" />
+    Edit Care Home Features
+  </a>
+  <a href="/admin/incomingRegistrations" class="dashboardButton">
+    <img src="/images/Dashboard/approve.jpg" alt="Approve Icon" />
+    Approve User Registrations
+  </a>
+  <a href="/carehome/overview" class="dashboardButton">
+    <img src="/images/Dashboard/statistics.jpg" alt="Care Home Icon" />
+    View Statistics
+  </a>
+  <a href="/admin/messages" class="dashboardButton">
+    <img src="/images/Dashboard/message.jpg" alt="Message Icon" />
+    View Messages
+  </a>
+</div>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
+

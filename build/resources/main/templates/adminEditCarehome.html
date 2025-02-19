@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin: Edit Care Home</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<h1 class="pageTitle">Admin: Edit Care Home</h1>
+<form th:action="@{/admin/carehome/edit/redirect}" method="GET" class="formStyle">
+    <label for="carehomeSelect">Select a care home to edit:</label>
+    <select name="carehomeId" id="carehomeSelect" required>
+        <option value="" disabled selected>Select a care home</option>
+        <option th:each="carehome : ${carehomes}"
+                th:value="${carehome.id}"
+                th:text="${carehome.homeName}"></option>
+    </select>
+    <br>
+    <button type="submit">Edit Care Home</button>
+</form>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

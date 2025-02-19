@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us</title>
+
+    <!-- Link to external stylesheet -->
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="/images/logos/favicon.ico">
+</head>
+<body>
+<header th:insert="~{fragments/header :: header}"></header>
+
+<!-- Contact form -->
+<form id="contactUs" method="post" action="/contactUs" onsubmit="return validate()" novalidate class="formStyle">
+    <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+    <h1>Contact Us:</h1>
+
+    <!-- Full Name input field -->
+    <div class="form-group">
+        <label for="fullName">Full Name:</label>
+        <input id="fullName" type="text" name="fullName" required />
+        <span id="nameError" class="error"></span>
+        <!-- Error message for name -->
+    </div>
+
+    <!-- User Type input field -->
+    <div class="form-group">
+        <label for="userType">I am a:</label>
+        <select id="userType" name="userType" required>
+            <option value="">Select user type</option>
+            <option value="Social Services">Social Services</option>
+            <option value="Society Manager">Society Manager</option>
+            <option value="Carehome Manager">Carehome Manager</option>
+            <option value="Stakeholder">Stakeholder</option>
+            <!-- Add other user types as needed -->
+        </select>
+        <span id="userTypeError" class="error"></span>
+    </div>
+
+    <!-- Email input field -->
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input id="email" type="email" name="email" required maxlength="50" />
+        <span id="emailError" class="error"></span>
+        <!-- Error message for email -->
+    </div>
+
+    <!-- Message textarea field -->
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="5" maxlength="1200" required></textarea>
+        <span id="messageError" class="error"></span>
+        <!-- Error message for message -->
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" class="submit-button">Submit</button>
+</form>
+
+<!-- Success message displayed on valid submission -->
+<div id="successMessage" class="success" style="display: none">
+    Your message has been submitted successfully.
+</div>
+
+<script>
+    // Attach real-time validation to input fields
+    document.getElementById("fullName").addEventListener("input", () => {
+        validateField(
+            document.getElementById("fullName"),
+            "nameError",
+            (value) => {
+                if (value.length < 2 || value.length > 30) {
+                    return "Name must be between 2 and 30 characters.";
+                }
+                return "";
+            }
+        );
+    });
+
+    document.getElementById("email").addEventListener("input", () => {
+        validateField(
+            document.getElementById("email"),
+            "emailError",
+            (value) => {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return "Please enter a valid email address.";
+                }
+                return "";
+            }
+        );
+    });
+
+    document.getElementById("userType").addEventListener("change", () => {
+        validateField(
+            document.getElementById("userType"),
+            "userTypeError",
+            (value) => {
+                if (value === "") {
+                    return "Please select a user type.";
+                }
+                return "";
+            }
+        );
+    });
+
+    document.getElementById("message").addEventListener("input", () => {
+        validateField(
+            document.getElementById("message"),
+            "messageError",
+            (value) => {
+                const charLength = value.length;
+
+                if (charLength < 10) {
+                    return "Your message is too short. Please include at least 10 characters.";
+                } else if (charLength > 1200) {
+                    return "Your message is too long. Please limit it to 1,200 characters.";
+                }
+
+                return "";
+            }
+        );
+    });
+
+    // Generic field validation function
+    function validateField(field, errorId, validationCallback) {
+        const value = field.value.trim(); // Trim whitespace
+        const errorElement = document.getElementById(errorId);
+        const errorMessage = validationCallback(value);
+
+        if (errorMessage) {
+            // Display validation error
+            errorElement.textContent = errorMessage;
+            errorElement.classList.add("show");
+            return false; // Validation failed
+        } else {
+            // Clear any previous error
+            errorElement.textContent = "";
+            errorElement.classList.remove("show");
+            return true; // Validation passed
+        }
+    }
+
+    // Form submission validation
+    function validate() {
+        // Validate each field and ensure all validations pass
+        const isFullNameValid = validateField(
+            document.getElementById("fullName"),
+            "nameError",
+            (value) => {
+                if (value.length < 2 || value.length > 30) {
+                    return "Name must be between 2 and 30 characters.";
+                }
+                return "";
+            }
+        );
+
+        const isEmailValid = validateField(
+            document.getElementById("email"),
+            "emailError",
+            (value) => {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return "Please enter a valid email address.";
+                }
+                return "";
+            }
+        );
+
+        const isUserTypeValid = validateField(
+            document.getElementById("userType"),
+            "userTypeError",
+            (value) => {
+                if (value === "") {
+                    return "Please select a user type.";
+                }
+                return "";
+            }
+        );
+
+        const isMessageValid = validateField(
+            document.getElementById("message"),
+            "messageError",
+            (value) => {
+                const charLength = value.length;
+
+                if (charLength < 10) {
+                    return "Your message is too short. Please include at least 10 characters.";
+                } else if (charLength > 1200) {
+                    return "Your message is too long. Please limit it to 1,200 characters.";
+                }
+                return "";
+            }
+        );
+
+        // Prevent form submission if any validation fails
+        return isFullNameValid && isEmailValid && isUserTypeValid && isMessageValid;
+    }
+</script>
+
+<footer th:insert="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
